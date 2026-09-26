@@ -6,6 +6,7 @@ public abstract class BossAttack : MonoBehaviour
     [SerializeField] protected float cooldown = 2f;
 
     protected float lastUsedTime = float.NegativeInfinity;
+    protected bool showHitbox;
 
     public abstract bool CanUse(Boss boss);
     public abstract IEnumerator Execute(Boss boss);
