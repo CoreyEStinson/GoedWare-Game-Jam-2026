@@ -1,16 +1,22 @@
+using System.Collections;
 using UnityEngine;
 
-public abstract class BossAttack
+public abstract class BossAttack : MonoBehaviour
 {
-    [SerializeField] protected float cooldown;
+    [SerializeField] protected float cooldown = 2f;
 
-    protected float lastUsedTime;
+    protected float lastUsedTime = float.NegativeInfinity;
 
     public abstract bool CanUse(Boss boss);
-    public abstract void Execute(Boss boss);
+    public abstract IEnumerator Execute(Boss boss);
 
     public bool IsOffCooldown()
     {
         return Time.time >= lastUsedTime + cooldown;
+    }
+
+    public void MarkUsed()
+    {
+        lastUsedTime = Time.time;
     }
 }

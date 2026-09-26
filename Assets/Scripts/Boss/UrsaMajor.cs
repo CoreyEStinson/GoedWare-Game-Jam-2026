@@ -7,6 +7,8 @@ public class UrsaMajor : Boss
     [SerializeField] private BossAttack roll;
     [SerializeField] private BossAttack jumpAndLand;
 
+    [SerializeField] private float stoppingDistance = 2f;
+
     protected override void Start()
     {
         base.Start();
@@ -23,12 +25,19 @@ public class UrsaMajor : Boss
         ChangeState(BossState.Idle);
     }
 
-    protected override void Move()
+    protected override void HandleMovement()
     {
         if (playerPos == null) return;
 
-        Vector3 direction = (playerPos.position - transform.position).normalized;
+        float distance = Vector3.Distance(transform.position, playerPos.position);
 
+        if (distance <= stoppingDistance)
+        {
+            ChangeState(BossState.Idle);
+            return;
+        }
+
+        Vector3 direction = (playerPos.position - transform.position).normalized;
         transform.position += direction * moveSpeed * Time.deltaTime;
     }
 

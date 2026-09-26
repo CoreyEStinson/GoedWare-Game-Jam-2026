@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,13 +6,15 @@ public abstract class Boss : MonoBehaviour
 {
     [SerializeField] protected float maxHealth;
     [SerializeField] protected float moveSpeed;
+    [SerializeField] protected Transform playerPos;
+
+    public Transform PlayerPos => playerPos;
 
     protected float currentHealth;
-    protected Transform playerPos;
-
     protected BossState state;
+    protected List<BossAttack> attacks = new List<BossAttack>();
 
-    protected List<BossAttack> attacks;
+    private Coroutine activeAttack;
 
     protected virtual void Start()
     {
@@ -45,10 +48,31 @@ public abstract class Boss : MonoBehaviour
 
     
     protected virtual void Move() { }
-    protected virtual void Die() { }
+    protected virtual void Die()
+    {
+        state = BossState.Dead;
+
+        if (activeAttack != null)
+        {
+            StopCoroutine(activeAttack);
+            activeAttack = null;
+        }
+    }
 
     protected virtual void HandleIntro() { }
-    protected virtual void ChooseNextAction() { }
+    protected virtual void ChooseNextAction()
+    {
+        BossAttack attack = PickAttack();
+
+        if (attack != null)
+        {
+            StartAttack(attack);
+        }
+        else
+        {
+            ChangeState(BossState.Moving);
+        }
+    }
     protected virtual void HandleMovement() { }
 
     protected virtual BossAttack PickAttack()
@@ -57,23 +81,45 @@ public abstract class Boss : MonoBehaviour
 
         foreach (BossAttack attack in attacks)
         {
-            if (attack.CanUse(this))
-            {
+            if (attack != null && attack.IsOffCooldown() && attack.CanUse(this))
                 validAttacks.Add(attack);
-            }
         }
 
         if (validAttacks.Count == 0) return null;
 
-        return validAttacks[Random.Range(1, validAttacks.Count)];
+        return validAttacks[Random.Range(0, validAttacks.Count)];
+    }
+
+    protected void StartAttack(BossAttack attack)
+    {
+        if (state == BossState.Dead || attack == null)
+        {
+            return;
+        }
+
+        state = BossState.Attacking;
+        attack.MarkUsed();
+        activeAttack = StartCoroutine(RunAttack(attack));
+    }
+
+    private IEnumerator RunAttack(BossAttack attack)
+    {
+        yield return attack.Execute(this);
+
+        activeAttack = null;
+
+        if (state != BossState.Dead)
+        {
+            state = BossState.Idle;
+        }
     }
 
     public virtual void TakeDamage(float damage)
     {
-        if (state == BossState.Dead)
+        if (state == BossState.Dead || damage <= 0)
             return;
 
-        currentHealth -= damage;
+        currentHealth -= Mathf.Max(0f, currentHealth - damage);
 
         if (currentHealth <= 0)
         {
