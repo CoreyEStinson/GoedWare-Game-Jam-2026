@@ -1,31 +1,45 @@
-using NUnit.Framework;
-using UnityEditor.Experimental.GraphView;
-using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEditor.Timeline.TimelinePlaybackControls;
 using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
+    // Serialized
+    [Header ("Movement")]
     [SerializeField]
     private float moveSpeed;
+
+    [Header ("Attacking")]
     [SerializeField]
-    private float dodgeSpeed;
+    private float attackDamage;
     [SerializeField]
-    private float dodgeLength;
-    [SerializeField]
-    private Transform attackPoint;
+    private float attackCooldown;
     [SerializeField]
     private float attackRange;
     [SerializeField]
     private float attackDistance;
     [SerializeField]
-    private float attackDamage;
+    private Transform attackPoint;
+
+    [Header ("Dodging")]
+    [SerializeField]
+    private float dodgeSpeed;
+    [SerializeField]
+    private float dodgeLength;
+    [SerializeField]
+    private float dodgeCooldown;
+
+    [Header ("Dashing")]
+    [SerializeField]
+    private float dashLength;
+
+    // Privates
+    private float attackCooldownTimer;
     private float speed;
     private Vector3 movementDirection;
     private Vector3 dodgeDirection;
     private float dodgeTimer;
+    private float dodgeCooldownTimer;
     private bool isDodging;
     private bool isCharging;
     private int chargeLevel;
@@ -42,11 +56,6 @@ public class PlayerController : MonoBehaviour
         speed = moveSpeed;
     }
 
-    void Update()
-    {
-        
-    }
-
     public void Move(InputAction.CallbackContext context)
     {
         movementDirection = context.ReadValue<Vector2>();
@@ -55,7 +64,7 @@ public class PlayerController : MonoBehaviour
     public void Attack(InputAction.CallbackContext context)
     {
         // Prevent the player from attacking when
-        if (isDodging || isDashing)
+        if (isDodging || isDashing || attackCooldownTimer > 0f)
         {
             return;
         }
@@ -84,6 +93,7 @@ public class PlayerController : MonoBehaviour
 
                 chargeLevel = 1;
                 isCharging = false;
+                attackCooldownTimer = attackCooldown;
 
                 //TEMP
                 GetComponent<SpriteRenderer>().color = Color.white;
@@ -97,7 +107,7 @@ public class PlayerController : MonoBehaviour
     public void Dodge(InputAction.CallbackContext context)
     {
         // Prevent the player from dodging when
-        if (isDodging || isDashing)
+        if (isDodging || isDashing || dodgeCooldownTimer > 0)
         {
             return;
         }
@@ -134,7 +144,7 @@ public class PlayerController : MonoBehaviour
     {
         isDashing = true;
         speed = dodgeSpeed * chargeLevel;
-        dodgeTimer = 0.1f;
+        dodgeTimer = dashLength;
 
         Vector3 mousePos = Mouse.current.position.ReadValue();
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
@@ -157,12 +167,30 @@ public class PlayerController : MonoBehaviour
         // If the player was dashing
         isDashing = false;
         chargeLevel = 1;
+        alreadyHit.Clear();
 
+        dodgeCooldownTimer = dodgeCooldown;
         speed = moveSpeed;
         dodgeTimer = 0f;
 
         //TEMP
         GetComponent<SpriteRenderer>().color = Color.white;
+    }
+
+    void Update()
+    {
+        if (attackCooldownTimer > 0)
+        {
+            attackCooldownTimer -= Time.deltaTime;
+        }
+        if (dodgeTimer > 0)
+        {
+            dodgeTimer -= Time.deltaTime;
+        }
+        if (dodgeCooldownTimer > 0)
+        {
+            dodgeCooldownTimer -= Time.deltaTime;
+        }
     }
 
     private void FixedUpdate()
@@ -172,15 +200,11 @@ public class PlayerController : MonoBehaviour
         {
             dir = dodgeDirection;
         }
-        transform.position += dir * speed;
+        transform.position += dir * speed * Time.fixedDeltaTime;
 
         if (isDodging || isDashing)
         {
-            if (dodgeTimer > 0f)
-            {
-                dodgeTimer -= Time.fixedDeltaTime;
-            }
-            else
+            if (dodgeTimer <= 0f)
             {
                 DodgeEnd();
             }
@@ -188,7 +212,7 @@ public class PlayerController : MonoBehaviour
 
         if (isDashing)
         {
-            Collider2D[] allHit = Physics2D.OverlapCircleAll(transform.position, attackRange * 2);
+            Collider2D[] allHit = Physics2D.OverlapCircleAll(transform.position + speed * dodgeDirection * Time.fixedDeltaTime, attackRange * 2);
 
             foreach (Collider2D hit in allHit)
             {
@@ -202,7 +226,7 @@ public class PlayerController : MonoBehaviour
             }
 
             //TEMP
-            GameObject indicator = Instantiate(attackIndicatorPrefab, attackPoint.transform.position, Quaternion.identity);
+            GameObject indicator = Instantiate(attackIndicatorPrefab, transform.position + speed * dodgeDirection * Time.fixedDeltaTime, Quaternion.identity);
             indicator.transform.localScale = Vector3.one * attackRange * 4;
             Destroy(indicator, 0.1f);
         }
