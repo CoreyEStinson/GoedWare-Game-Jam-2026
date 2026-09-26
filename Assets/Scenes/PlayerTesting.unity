@@ -192,6 +192,10 @@ PrefabInstance:
       value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 7958448821970989113, guid: 2ea90df3100eb6f4ca05848db8a3643b, type: 3}
+      propertyPath: dodgeCooldown
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7958448821970989113, guid: 2ea90df3100eb6f4ca05848db8a3643b, type: 3}
       propertyPath: attackCooldown
       value: 0.5
       objectReference: {fileID: 0}
