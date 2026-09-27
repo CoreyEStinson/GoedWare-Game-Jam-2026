@@ -5,17 +5,16 @@ using UnityEngine;
 public abstract class Boss : MonoBehaviour
 {
     [SerializeField] protected float maxHealth;
+    [SerializeField] protected float currentHealth;
     [SerializeField] protected float moveSpeed;
     [SerializeField] protected Transform playerPos;
 
     public Transform PlayerPos => playerPos;
     public float MoveSpeed => moveSpeed;
-
-    protected float currentHealth;
     protected BossState state;
     protected List<BossAttack> attacks = new List<BossAttack>();
-
-    private Coroutine activeAttack;
+    protected BossAttack activeAttack;
+    protected Coroutine activeAttackCoroutine;
 
     protected virtual void Start()
     {
@@ -33,6 +32,10 @@ public abstract class Boss : MonoBehaviour
 
             case BossState.Idle:
                 ChooseNextAction();
+                break;
+
+            // VERY DANGEROUS, YOU HAVE TO MANUALLY TAKE THE BOSS OUT OF WAITING
+            case BossState.Waiting:
                 break;
 
             case BossState.Moving:
@@ -53,10 +56,10 @@ public abstract class Boss : MonoBehaviour
     {
         state = BossState.Dead;
 
-        if (activeAttack != null)
+        if (activeAttackCoroutine != null)
         {
-            StopCoroutine(activeAttack);
-            activeAttack = null;
+            StopCoroutine(activeAttackCoroutine);
+            activeAttackCoroutine = null;
         }
     }
 
@@ -64,6 +67,7 @@ public abstract class Boss : MonoBehaviour
     protected virtual void ChooseNextAction()
     {
         BossAttack attack = PickAttack();
+        activeAttack = attack;
 
         if (attack != null)
         {
@@ -100,14 +104,14 @@ public abstract class Boss : MonoBehaviour
 
         state = BossState.Attacking;
         attack.MarkUsed();
-        activeAttack = StartCoroutine(RunAttack(attack));
+        activeAttackCoroutine = StartCoroutine(RunAttack(attack));
     }
 
     private IEnumerator RunAttack(BossAttack attack)
     {
         yield return attack.Execute(this);
 
-        activeAttack = null;
+        activeAttackCoroutine = null;
 
         if (state != BossState.Dead)
         {
@@ -126,11 +130,43 @@ public abstract class Boss : MonoBehaviour
         {
             Die();
         }
+
+        StartCoroutine(FlashRed());
+    }
+
+    private IEnumerator FlashRed()
+    {
+        SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+
+        Color originalColor = sprite.color;
+
+        sprite.color = Color.red;
+
+        yield return new WaitForSeconds(0.1f);
+
+        sprite.color = originalColor;
     }
 
     public virtual void ChangeState(BossState state)
     {
         this.state = state;
+    }
+
+    public void CancelCurrentAttack()
+    {
+        if (activeAttackCoroutine != null)
+        {
+            StopCoroutine(activeAttackCoroutine);
+            activeAttackCoroutine = null;
+        }
+
+        if (activeAttack != null)
+        {
+            activeAttack.Nuke();
+            activeAttack = null;
+        }
+
+        state = BossState.Waiting;
     }
 }
 
@@ -138,6 +174,7 @@ public enum BossState
 {
     Intro,
     Idle,
+    Waiting,
     Attacking,
     Moving,
     Dead

@@ -5,11 +5,11 @@ using System.Collections.Generic;
 public class PlayerController : MonoBehaviour
 {
     // Serialized
-    [Header ("Movement")]
+    [Header("Movement")]
     [SerializeField]
     private float moveSpeed;
 
-    [Header ("Attacking")]
+    [Header("Attacking")]
     [SerializeField]
     private float attackDamage;
     [SerializeField]
@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private Transform attackPoint;
 
-    [Header ("Dodging")]
+    [Header("Dodging")]
     [SerializeField]
     private float dodgeSpeed;
     [SerializeField]
@@ -29,9 +29,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float dodgeCooldown;
 
-    [Header ("Dashing")]
+    [Header("Dashing")]
     [SerializeField]
     private float dashLength;
+    [SerializeField] private float dashSizeMult;
 
     // Privates
     private float attackCooldownTimer;
@@ -45,7 +46,7 @@ public class PlayerController : MonoBehaviour
     private int chargeLevel;
     private float chargeStart;
     private bool isDashing;
-    private List<GameObject> alreadyHit = new List<GameObject>();
+    private List<Collider2D> alreadyHit = new List<Collider2D>();
 
     //TEMP
     [SerializeField]
@@ -54,6 +55,87 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         speed = moveSpeed;
+    }
+
+    void Update()
+    {
+        if (attackCooldownTimer > 0)
+        {
+            attackCooldownTimer -= Time.deltaTime;
+        }
+        if (dodgeTimer > 0)
+        {
+            dodgeTimer -= Time.deltaTime;
+        }
+        if (dodgeCooldownTimer > 0)
+        {
+            dodgeCooldownTimer -= Time.deltaTime;
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        Vector3 dir = movementDirection;
+        if (isDodging || isDashing)
+        {
+            dir = dodgeDirection;
+        }
+
+        // Positions the attack point(s)
+        Vector3 mousePos = Mouse.current.position.ReadValue();
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
+        Vector3 mouseFacing = mouseWorldPos - transform.position;
+        mouseFacing.z = 0f;
+        mouseFacing.Normalize();
+
+        transform.position += dir * speed * Time.fixedDeltaTime;
+
+        if (isDodging || isDashing)
+        {
+            if (dodgeTimer <= 0f)
+            {
+                DodgeEnd();
+            }
+        }
+
+        if (isDashing)
+        {
+            alreadyHit.AddRange(Swing(transform.position + speed * dodgeDirection * Time.fixedDeltaTime, attackDistance, attackRange * dashSizeMult));
+        }
+
+        attackPoint.position = transform.position + (mouseFacing * attackDistance);
+
+        // Attack charging
+        if (isCharging)
+        {
+            switch (Time.time - chargeStart)
+            {
+                case < 1:
+                    //fizzle
+                    chargeLevel = 1;
+                    break;
+
+                case < 2:
+                    //stage 1 charge
+                    chargeLevel = 2;
+                    speed = moveSpeed * 0.8f;
+                    GetComponent<SpriteRenderer>().color = Color.yellow;
+                    break;
+
+                case < 3:
+                    //stage 2 charge
+                    chargeLevel = 3;
+                    speed = moveSpeed * 0.6f;
+                    GetComponent<SpriteRenderer>().color = Color.orange;
+                    break;
+                default:
+                    //max charge
+                    chargeLevel = 4;
+                    speed = moveSpeed * 0.4f;
+                    GetComponent<SpriteRenderer>().color = Color.red;
+                    break;
+            }
+        }
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -74,34 +156,48 @@ public class PlayerController : MonoBehaviour
             chargeStart = Time.time;
             isCharging = true;
         }
-        
+
         if (context.canceled)
         {
             if (isCharging)
             {
-                Collider2D[] allHit = Physics2D.OverlapCircleAll(attackPoint.position, attackRange);
-
-                foreach (Collider2D hit in allHit)
-                {
-                    if (hit.CompareTag("Damageable"))
-                    {
-                        hit.GetComponent<HealthComponent>().TakeDamage(attackDamage * chargeLevel);
-                        print(hit.gameObject.name);
-                        print(attackDamage * chargeLevel);
-                    }
-                }
-
-                chargeLevel = 1;
-                isCharging = false;
-                attackCooldownTimer = attackCooldown;
-
-                //TEMP
-                GetComponent<SpriteRenderer>().color = Color.white;
-                GameObject indicator = Instantiate(attackIndicatorPrefab, attackPoint.transform.position, Quaternion.identity);
-                indicator.transform.localScale = Vector3.one * attackRange * 2;
-                Destroy(indicator, 0.1f);
+                Swing(attackPoint.transform.position, attackDistance, attackRange);
             }
         }
+    }
+
+    private Collider2D[] Swing(Vector2 attackPosition, float range, float radius)
+    {
+        Collider2D[] allHit = Physics2D.OverlapCircleAll(attackPosition, radius);
+
+        foreach (Collider2D hit in allHit)
+        {
+            if (!alreadyHit.Contains(hit))
+            {
+                Boss enemy = hit.GetComponent<Boss>();
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(attackDamage * chargeLevel);
+                    print(hit.gameObject.name + "got hit for " + attackDamage * chargeLevel);
+                }
+            }
+        }
+
+        if (!isDashing)
+        {
+            chargeLevel = 1;
+            attackCooldownTimer = attackCooldown;
+            speed = moveSpeed;
+        }
+
+        isCharging = false;
+
+        // TEMP
+        GameObject indicator = Instantiate(attackIndicatorPrefab, attackPosition, Quaternion.identity);
+        indicator.transform.localScale = Vector3.one * 2 * radius;
+        Destroy(indicator, 0.1f);
+
+        return allHit;
     }
 
     public void Dodge(InputAction.CallbackContext context)
@@ -175,108 +271,5 @@ public class PlayerController : MonoBehaviour
 
         //TEMP
         GetComponent<SpriteRenderer>().color = Color.white;
-    }
-
-    void Update()
-    {
-        if (attackCooldownTimer > 0)
-        {
-            attackCooldownTimer -= Time.deltaTime;
-        }
-        if (dodgeTimer > 0)
-        {
-            dodgeTimer -= Time.deltaTime;
-        }
-        if (dodgeCooldownTimer > 0)
-        {
-            dodgeCooldownTimer -= Time.deltaTime;
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        Vector3 dir = movementDirection;
-        if (isDodging || isDashing)
-        {
-            dir = dodgeDirection;
-        }
-        transform.position += dir * speed * Time.fixedDeltaTime;
-
-        if (isDodging || isDashing)
-        {
-            if (dodgeTimer <= 0f)
-            {
-                DodgeEnd();
-            }
-        }
-
-        if (isDashing)
-        {
-            Collider2D[] allHit = Physics2D.OverlapCircleAll(transform.position + speed * dodgeDirection * Time.fixedDeltaTime, attackRange * 2);
-
-            foreach (Collider2D hit in allHit)
-            {
-                if (hit.CompareTag("Damageable") && !alreadyHit.Contains(hit.gameObject))
-                {
-                    hit.GetComponent<HealthComponent>().TakeDamage(attackDamage * chargeLevel);
-                    alreadyHit.Add(hit.gameObject);
-                    print(hit.gameObject.name);
-                    print(attackDamage * chargeLevel);
-                }
-            }
-
-            //TEMP
-            GameObject indicator = Instantiate(attackIndicatorPrefab, transform.position + speed * dodgeDirection * Time.fixedDeltaTime, Quaternion.identity);
-            indicator.transform.localScale = Vector3.one * attackRange * 4;
-            Destroy(indicator, 0.1f);
-        }
-
-        // Positions the attack point(s)
-        Vector3 mousePos = Mouse.current.position.ReadValue();
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
-        Vector3 mouseFacing = mouseWorldPos - transform.position;
-        mouseFacing.z = 0f;
-        mouseFacing.Normalize();
-
-        attackPoint.position = transform.position + (mouseFacing * attackDistance);
-
-        // Attack charging
-        if (isCharging)
-        {
-            switch (Time.time - chargeStart)
-            {
-                case < 1:
-                    //fizzle
-                    chargeLevel = 1;
-                    break;
-
-                case < 2:
-                    //stage 1 charge
-                    chargeLevel = 2;
-                    GetComponent<SpriteRenderer>().color = Color.yellow;
-                    break;
-
-                case < 3:
-                    //stage 2 charge
-                    chargeLevel = 3;
-                    GetComponent<SpriteRenderer>().color = Color.orange;
-                    break;
-                default:
-                    //max charge
-                    chargeLevel = 4;
-                    GetComponent<SpriteRenderer>().color = Color.red;
-                    break;
-            }
-        }
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        if (attackPoint == null)
-        {
-            return;
-        }
-
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 }
