@@ -1,7 +1,10 @@
 using UnityEngine;
+using System.Collections;
 
 public class UrsaMinor : Boss
 {
+    [Header("UrsaMajor")]
+    [SerializeField] private Transform ursaMajor;
     [Header("Ursa Minor Attacks")]
     [SerializeField] private BossAttack chargeForth;
     [SerializeField] private BossAttack flurry;
@@ -42,5 +45,38 @@ public class UrsaMinor : Boss
     protected override void Die()
     {
         base.Die();
+    }
+
+    public override void TakeDamage(float damage)
+    {
+        base.TakeDamage(damage);
+
+        if (Random.Range(0, 5) == 0)
+        {
+            CancelCurrentAttack();
+
+            float time = Vector2.Distance(transform.position, ursaMajor.position) / (moveSpeed * 2);
+            StartCoroutine(LerpMoveToUrsa(ursaMajor.position, time));
+        }
+    }
+
+    private IEnumerator LerpMoveToUrsa(Vector2 endPos, float time)
+    {
+        Vector2 startPos = transform.position;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < time)
+        {
+            float t = elapsedTime / time;
+
+            transform.position = Vector2.Lerp(startPos, endPos, t);
+
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+
+        transform.position = endPos;
+        state = BossState.Idle;
     }
 }

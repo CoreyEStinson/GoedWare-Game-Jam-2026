@@ -20,4 +20,9 @@ public abstract class BossAttack : MonoBehaviour
     {
         lastUsedTime = Time.time;
     }
+
+    public void Nuke()
+    {
+        StopAllCoroutines();
+    }
 }

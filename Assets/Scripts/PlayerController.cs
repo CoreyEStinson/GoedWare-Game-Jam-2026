@@ -46,7 +46,7 @@ public class PlayerController : MonoBehaviour
     private int chargeLevel;
     private float chargeStart;
     private bool isDashing;
-    private List<GameObject> alreadyHit = new List<GameObject>();
+    private List<Collider2D> alreadyHit = new List<Collider2D>();
 
     //TEMP
     [SerializeField]
@@ -100,7 +100,7 @@ public class PlayerController : MonoBehaviour
 
         if (isDashing)
         {
-            Swing(transform.position + speed * dodgeDirection * Time.fixedDeltaTime, attackDistance, attackRange * dashSizeMult);
+            alreadyHit.AddRange(Swing(transform.position + speed * dodgeDirection * Time.fixedDeltaTime, attackDistance, attackRange * dashSizeMult));
         }
 
         attackPoint.position = transform.position + (mouseFacing * attackDistance);
@@ -118,17 +118,20 @@ public class PlayerController : MonoBehaviour
                 case < 2:
                     //stage 1 charge
                     chargeLevel = 2;
+                    speed = moveSpeed * 0.8f;
                     GetComponent<SpriteRenderer>().color = Color.yellow;
                     break;
 
                 case < 3:
                     //stage 2 charge
                     chargeLevel = 3;
+                    speed = moveSpeed * 0.6f;
                     GetComponent<SpriteRenderer>().color = Color.orange;
                     break;
                 default:
                     //max charge
                     chargeLevel = 4;
+                    speed = moveSpeed * 0.4f;
                     GetComponent<SpriteRenderer>().color = Color.red;
                     break;
             }
@@ -163,17 +166,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Swing(Vector2 attackPosition, float range, float radius)
+    private Collider2D[] Swing(Vector2 attackPosition, float range, float radius)
     {
         Collider2D[] allHit = Physics2D.OverlapCircleAll(attackPosition, radius);
 
         foreach (Collider2D hit in allHit)
         {
-            Boss enemy = hit.GetComponent<Boss>();
-            if (enemy != null)
+            if (!alreadyHit.Contains(hit))
             {
-                enemy.TakeDamage(attackDamage * chargeLevel);
-                print(hit.gameObject.name + "got hit for" + attackDamage * chargeLevel);
+                Boss enemy = hit.GetComponent<Boss>();
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(attackDamage * chargeLevel);
+                    print(hit.gameObject.name + "got hit for " + attackDamage * chargeLevel);
+                }
             }
         }
 
@@ -181,6 +187,7 @@ public class PlayerController : MonoBehaviour
         {
             chargeLevel = 1;
             attackCooldownTimer = attackCooldown;
+            speed = moveSpeed;
         }
 
         isCharging = false;
@@ -189,6 +196,8 @@ public class PlayerController : MonoBehaviour
         GameObject indicator = Instantiate(attackIndicatorPrefab, attackPosition, Quaternion.identity);
         indicator.transform.localScale = Vector3.one * 2 * radius;
         Destroy(indicator, 0.1f);
+
+        return allHit;
     }
 
     public void Dodge(InputAction.CallbackContext context)

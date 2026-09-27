@@ -39,12 +39,10 @@ public class Flurry : BossAttack
         for (int i = 0; i < numOfSwings; i++)
         {
             Vector2 forward = (Vector2)(boss.PlayerPos.position - boss.transform.position).normalized;
-            print("REAL FORWARD" + forward);
 
             if (previousForward != Vector2.zero &&
                 Vector2.Angle(previousForward, forward) > turnLimitDegrees)
             {
-                print(Vector2.Angle(previousForward, forward));
                 int sign = (Vector2.SignedAngle(forward, previousForward) >= 0) ? -1 : 1;
                 forward = Quaternion.Euler(0, 0, turnLimitDegrees * sign) * previousForward;
             }
