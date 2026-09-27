@@ -4,6 +4,7 @@ using UnityEngine;
 public class FrontSwing : BossAttack
 {
     [SerializeField] private float range = 2.5f;
+    [SerializeField] private float approachRange = 2.5f;
     [SerializeField] private float arcDegrees = 120f;
     [SerializeField] private float damage = 20f;
     [SerializeField] private float activeDuration = 0.15f;
@@ -20,7 +21,7 @@ public class FrontSwing : BossAttack
 
         // Check if the player is close enough to the boss
         Vector2 toPlayer = (Vector2)(boss.PlayerPos.position - boss.transform.position);
-        return toPlayer.sqrMagnitude <= range * range;
+        return toPlayer.sqrMagnitude <= approachRange * approachRange;
     }
 
     public override IEnumerator Execute(Boss boss)
@@ -28,12 +29,27 @@ public class FrontSwing : BossAttack
         if (boss == null || boss.PlayerPos == null)
             yield break;
 
+        while (boss != null && boss.PlayerPos != null)
+        {
+            Vector2 towardsPlayer = (Vector2)(boss.PlayerPos.position - boss.transform.position);
+
+            float distance = towardsPlayer.magnitude;
+
+            if (distance <= range)
+                break;
+
+            float step = Mathf.Min(boss.MoveSpeed * Time.deltaTime, distance - range);
+            boss.transform.position += (Vector3)towardsPlayer.normalized * step;
+
+            yield return null;
+        }
+
         Vector2 forward = (Vector2)(boss.PlayerPos.position - boss.transform.position).normalized;
+
+        yield return new WaitForSeconds(windup);
 
         swingDirection = forward;
         showHitbox = true;
-
-        yield return new WaitForSeconds(windup);
 
         Vector2 toPlayer = (Vector2)(boss.PlayerPos.position - boss.transform.position);
 

@@ -5,6 +5,8 @@ public class Roll : BossAttack
 {
     [SerializeField] private float rollDistance = 6f;
     [SerializeField] private float rollSpeed = 8f;
+    [SerializeField] private float rollRangeMin = 5f;
+    [SerializeField] private float rollRangeMax = 16f;
     [SerializeField] private float contactRadius = 1f;
     [SerializeField] private float damage = 15f;
     [SerializeField] private float hitCooldown = 0.75f;
@@ -15,7 +17,13 @@ public class Roll : BossAttack
 
     public override bool CanUse(Boss boss)
     {
-        return boss != null && boss.PlayerPos != null;
+        if (boss == null || boss.PlayerPos == null)
+        {
+            return false;
+        }
+
+        Vector2 toPlayer = (Vector2)(boss.PlayerPos.position - boss.transform.position);
+        return toPlayer.sqrMagnitude <= rollRangeMax * rollRangeMax && toPlayer.sqrMagnitude >= rollRangeMin * rollRangeMin;
     }
 
     public override IEnumerator Execute(Boss boss)
