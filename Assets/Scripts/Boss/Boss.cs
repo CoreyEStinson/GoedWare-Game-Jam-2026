@@ -9,6 +9,7 @@ public abstract class Boss : MonoBehaviour
     [SerializeField] protected Transform playerPos;
 
     public Transform PlayerPos => playerPos;
+    public float MoveSpeed => moveSpeed;
 
     protected float currentHealth;
     protected BossState state;
@@ -119,7 +120,7 @@ public abstract class Boss : MonoBehaviour
         if (state == BossState.Dead || damage <= 0)
             return;
 
-        currentHealth -= Mathf.Max(0f, currentHealth - damage);
+        currentHealth = Mathf.Max(0f, currentHealth - damage);
 
         if (currentHealth <= 0)
         {

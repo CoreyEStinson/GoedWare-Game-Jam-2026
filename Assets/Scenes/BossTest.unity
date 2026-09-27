@@ -269,6 +269,7 @@ GameObject:
   - component: {fileID: 1029046590}
   - component: {fileID: 1029046591}
   - component: {fileID: 1029046592}
+  - component: {fileID: 1029046593}
   m_Layer: 0
   m_Name: UrsaMajor
   m_TagString: Untagged
@@ -367,7 +368,7 @@ MonoBehaviour:
   playerPos: {fileID: 1793439301}
   frontSwing: {fileID: 1029046591}
   roll: {fileID: 1029046592}
-  jumpAndLand: {fileID: 0}
+  jumpAndLand: {fileID: 1029046593}
   stoppingDistance: 2
 --- !u!114 &1029046591
 MonoBehaviour:
@@ -383,8 +384,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FrontSwing
   cooldown: 2
   range: 2.5
+  approachRange: 7
   arcDegrees: 120
   damage: 20
+  activeDuration: 0.15
   windup: 0.5
   recovery: 0.6
 --- !u!114 &1029046592
@@ -402,10 +405,35 @@ MonoBehaviour:
   cooldown: 10
   rollDistance: 15
   rollSpeed: 8
+  rollRangeMin: 5
+  rollRangeMax: 16
   contactRadius: 1
   damage: 15
   hitCooldown: 0.75
   recovery: 0.5
+--- !u!114 &1029046593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029046587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3417eb37eec51fd4f8d0f985daf4be6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Jump
+  cooldown: 15
+  timeBeforeShadow: 2
+  timeFromShadowToLanding: 2
+  shadowPrefab: {fileID: 961148425600176266, guid: 562a9978f1a036647aa15a22a2cd4958, type: 3}
+  shockwaveCount: 3
+  delayBetweenShockwaves: 0.75
+  shockwaveMaxRadius: 20
+  shockwaveDuration: 3
+  playerHitRadius: 0.5
+  shockwaveDamage: 15
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!1 &1793439299
 GameObject:
   m_ObjectHideFlags: 0
@@ -472,7 +500,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: e2f1ad716ef5a6c40909e33ac0c04fa5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7c2edba2ebdb5a74595578d5257d20a5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
