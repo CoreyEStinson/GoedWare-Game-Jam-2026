@@ -10,6 +10,8 @@ public class Jump : BossAttack
 
     [Header("Shadow")]
     [SerializeField] private GameObject shadowPrefab;
+    [SerializeField] private float slamRadius = 3f;
+    [SerializeField] private float slamDamage = 10f;
 
     [Header("Shockwaves")]
     [SerializeField] private int shockwaveCount = 3;
@@ -27,6 +29,8 @@ public class Jump : BossAttack
     }
 
     private List<Shockwave> shockwaves = new List<Shockwave>();
+    private Vector2 landingPosition;
+    private bool hasLandingPosition;
 
     public override bool CanUse(Boss boss)
     {
@@ -44,12 +48,22 @@ public class Jump : BossAttack
         
         yield return new WaitForSeconds(timeBeforeShadow);
 
-        Vector2 landingPosition = boss.PlayerPos.position;
+        landingPosition = boss.PlayerPos.position;
         GameObject shadow = Instantiate(shadowPrefab, landingPosition, Quaternion.identity);
 
         yield return new WaitForSeconds(timeFromShadowToLanding);
 
+        hasLandingPosition = true;
+
         boss.transform.position = landingPosition;
+
+        // If player is inside of the slam circle
+        if (boss.PlayerPos != null &&
+            Vector2.Distance(landingPosition, boss.PlayerPos.position) <= slamRadius)
+        {
+            // Deal damage to player
+            print("Attacked player with " + this);
+        }
 
         if (bossSpriteRenderer != null)
             bossSpriteRenderer.enabled = true;
@@ -64,6 +78,8 @@ public class Jump : BossAttack
             if (i < shockwaveCount - 1) 
                 yield return new WaitForSeconds(delayBetweenShockwaves);
         } 
+
+        hasLandingPosition = false;
     }
 
     private IEnumerator ExpandShockwave(Vector2 center, Transform player)
@@ -113,6 +129,12 @@ public class Jump : BossAttack
 
     private void OnDrawGizmos()
     {
+        if (hasLandingPosition)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(landingPosition, slamRadius);
+        }
+
         Gizmos.color = gizmoColor;
 
         foreach (Shockwave wave in shockwaves)
