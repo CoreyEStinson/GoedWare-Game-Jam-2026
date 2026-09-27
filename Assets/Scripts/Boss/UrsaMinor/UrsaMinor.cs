@@ -4,6 +4,7 @@ public class UrsaMinor : Boss
 {
     [Header("Ursa Minor Attacks")]
     [SerializeField] private BossAttack chargeForth;
+    [SerializeField] private BossAttack flurry;
 
     [SerializeField] private float stoppingDistance = 2f;
 
@@ -12,6 +13,7 @@ public class UrsaMinor : Boss
         base.Start();
 
         attacks.Add(chargeForth);
+        attacks.Add(flurry);
     }
 
     protected override void HandleIntro()
