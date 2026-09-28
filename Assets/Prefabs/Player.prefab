@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3501849361207047688}
   - component: {fileID: 9157313670686479915}
   - component: {fileID: 7958448821970989113}
+  - component: {fileID: 8805639121567345391}
   m_Layer: 0
   m_Name: Player
   m_TagString: Damageable
@@ -205,8 +206,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: 901eba5d-aaeb-4ae4-a123-1db8e6ffa20c
-    m_ActionName: 'Player/Dodge[/Mouse/rightButton,/Keyboard/space]'
+    m_ActionId: 8987b663-d2d1-4b73-a0d1-a77ad5515138
+    m_ActionName: 'Player/Dodge[/Keyboard/space,/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -224,13 +225,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c72ae961b8157a4191cac99fb1e8354, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  moveSpeed: 0.1
-  dodgeSpeed: 0.2
-  dodgeLength: 0.2
-  attackPoint: {fileID: 5564735446910500289}
+  moveSpeed: 10
+  attackDamage: 2
+  attackCooldown: 0.5
   attackRange: 0.5
   attackDistance: 1
-  attackDamage: 2
+  attackPoint: {fileID: 5564735446910500289}
+  dodgeSpeed: 20
+  dodgeLength: 0.2
+  dodgeCooldown: 0
+  dashLength: 0.1
+  attackIndicatorPrefab: {fileID: 6422295004287836798, guid: 8a38af8cd2397fc48aa4c8e66053542f, type: 3}
+--- !u!114 &8805639121567345391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3037630107614546912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f6892c85d039274c9a57affa92bee53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
+  health: 10
 --- !u!1 &7022802435018947152
 GameObject:
   m_ObjectHideFlags: 0
@@ -240,7 +258,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5564735446910500289}
-  - component: {fileID: 1095576754156957964}
   m_Layer: 0
   m_Name: AttackPoint
   m_TagString: Untagged
@@ -263,62 +280,3 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2665146579946159536}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &1095576754156957964
-SpriteRenderer:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7022802435018947152}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_MaskInteraction: 0
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 0.2, y: 0.2}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
