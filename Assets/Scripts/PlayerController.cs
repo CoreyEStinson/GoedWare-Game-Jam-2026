@@ -39,8 +39,11 @@ public class PlayerController : MonoBehaviour
     
     [Header("Slash Visual")]
     [SerializeField] private GameObject slashPrefab;
-    [SerializeField] private float slashLifetime = 0.25f;
+    [SerializeField] private float slashLifetime = 0.1f;
     [SerializeField] private float slashRotationOffset;
+
+    [Header("Health")]
+    [SerializeField] private HealthComponent playerHealthComponent;
 
     // Privates
     private float attackCooldownTimer;
@@ -55,10 +58,7 @@ public class PlayerController : MonoBehaviour
     private float chargeStart;
     private bool isDashing;
     private List<Collider2D> alreadyHit = new List<Collider2D>();
-
-    //TEMP
-    [SerializeField]
-    private GameObject attackIndicatorPrefab;
+    private bool isDead;
 
     void Start()
     {
@@ -67,6 +67,14 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (playerHealthComponent.Health <= 0 && !isDead)
+        {
+            isDead = true;
+            gameObject.SetActive(false);
+        }
+
+        if (isDead) return;
+
         if (attackCooldownTimer > 0)
         {
             attackCooldownTimer -= Time.deltaTime;
@@ -83,6 +91,14 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (playerHealthComponent.Health <= 0 && !isDead)
+        {
+            isDead = true;
+            gameObject.SetActive(false);
+        }
+
+        if (isDead) return;
+
         Vector3 dir = movementDirection;
         if (isDodging || isDashing)
         {
@@ -208,11 +224,6 @@ public class PlayerController : MonoBehaviour
 
         isCharging = false;
 
-        // TEMP
-        GameObject indicator = Instantiate(attackIndicatorPrefab, attackPosition, Quaternion.identity);
-        indicator.transform.localScale = Vector3.one * 2 * radius;
-        Destroy(indicator, 0.1f);
-
         return allHit;
     }
 
@@ -247,9 +258,6 @@ public class PlayerController : MonoBehaviour
             //Reset the attack state
             isCharging = false;
             chargeLevel = 1;
-
-            //TEMP
-            GetComponent<SpriteRenderer>().color = Color.green;
         }
     }
 
@@ -287,9 +295,6 @@ public class PlayerController : MonoBehaviour
         dodgeCooldownTimer = dodgeCooldown;
         speed = moveSpeed;
         dodgeTimer = 0f;
-
-        //TEMP
-        GetComponent<SpriteRenderer>().color = Color.white;
     }
 
     private void SpawnSlash(Vector2 position, Vector2 direction)

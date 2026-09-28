@@ -61,6 +61,7 @@ public class FrontSwing : BossAttack
         if (inRange && inArc)
         {
             // Deal damage to the player
+            boss.playerHealthComponent.TakeDamage(damage);
             print("Attacked player with " + this);
         }
 

@@ -10,7 +10,6 @@ public class UrsaMinor : Boss
     [SerializeField] private BossAttack flurry;
 
     [SerializeField] private float stoppingDistance = 2f;
-    [SerializeField] private HealthBar healthBar;
 
     protected override void Start()
     {
@@ -59,10 +58,6 @@ public class UrsaMinor : Boss
             float time = Vector2.Distance(transform.position, ursaMajor.position) / (moveSpeed * 2);
             StartCoroutine(LerpMoveToUrsa(ursaMajor.position, time));
         }
-
-        // Update heathbar
-        print("Setting healthbar");
-        healthBar?.SetHealth((int)currentHealth);
     }
 
     private IEnumerator LerpMoveToUrsa(Vector2 endPos, float time)

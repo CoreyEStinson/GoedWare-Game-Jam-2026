@@ -11,8 +11,10 @@ public abstract class Boss : MonoBehaviour
     [SerializeField] protected float moveSpeed;
     [SerializeField] protected Transform playerPos;
     [SerializeField] protected BossAnimationController bossAnimation;
+    [SerializeField] protected HealthBar bossHeathBar;
 
     public Transform PlayerPos => playerPos;
+    public HealthComponent playerHealthComponent;
     public float MoveSpeed => moveSpeed;
     public BossAnimationController BossAnimation => bossAnimation;
     protected BossState state;
@@ -154,6 +156,8 @@ public abstract class Boss : MonoBehaviour
         {
             Die();
         }
+
+        bossHeathBar?.SetHealth((int)currentHealth);
 
         StartCoroutine(FlashRed());
     }

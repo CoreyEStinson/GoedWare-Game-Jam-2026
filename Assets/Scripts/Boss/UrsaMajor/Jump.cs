@@ -82,6 +82,7 @@ public class Jump : BossAttack
             Vector2.Distance(landingPosition, boss.PlayerPos.position) <= slamRadius)
         {
             // Deal damage to player
+            boss.playerHealthComponent.TakeDamage(slamDamage);
             print("Attacked player with " + this);
         }
 
@@ -93,7 +94,7 @@ public class Jump : BossAttack
 
         for (int i = 0; i < shockwaveCount; i++)
         {
-            StartCoroutine(ExpandShockwave(landingPosition, boss.PlayerPos));
+            StartCoroutine(ExpandShockwave(landingPosition, boss.PlayerPos, boss.playerHealthComponent));
 
             if (i < shockwaveCount - 1) 
                 yield return new WaitForSeconds(delayBetweenShockwaves);
@@ -102,7 +103,7 @@ public class Jump : BossAttack
         hasLandingPosition = false;
     }
 
-    private IEnumerator ExpandShockwave(Vector2 center, Transform player)
+    private IEnumerator ExpandShockwave(Vector2 center, Transform player, HealthComponent playerHealthComponent)
     {
         Shockwave wave = new Shockwave
         {
@@ -143,6 +144,7 @@ public class Jump : BossAttack
                 if (waveReachedPlayer)
                 {
                     // Deal damage to player
+                    playerHealthComponent.TakeDamage(shockwaveDamage);
                     print("Attacked player with " + this);
                     
                     hasHitPlayer = true;

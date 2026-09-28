@@ -7,9 +7,11 @@ using UnityEngine.SceneManagement;
 public class SceneManagerScript : MonoBehaviour
 {
     [SerializeField] private Transform player;
+    [SerializeField] private HealthComponent playerHealth;
     [SerializeField] private Boss uMajor;
     [SerializeField] private Boss uMinor;
     [SerializeField] private TextMeshProUGUI youWinText;
+    [SerializeField] private TextMeshProUGUI youLoseText;
 
     [SerializeField] private Vector4 mapBounds;
 
@@ -19,7 +21,11 @@ public class SceneManagerScript : MonoBehaviour
     {
         if (uMajor.CurrentHealth <= 0 && uMinor.CurrentHealth <= 0)
         {
-            StartCoroutine(EndGame());
+            StartCoroutine(EndGame(0));
+        }
+        else if (playerHealth.Health <= 0)
+        {
+            StartCoroutine(EndGame(1));
         }
 
         Vector2 newPosition = player.position;
@@ -46,13 +52,28 @@ public class SceneManagerScript : MonoBehaviour
             player.position = newPosition;
         }
 
+        // End da game if the player dies
+
         player.position = newPosition;
         lastPosition = player.position;
     }
 
-    private IEnumerator EndGame()
+    private IEnumerator EndGame(int condition)
     {
-        youWinText.gameObject.SetActive(true);
+        switch (condition)
+        {
+            case 0:
+                // Good ending
+                youWinText.gameObject.SetActive(true);
+
+                break;
+
+            case 1:
+                // Bad ending
+                youLoseText.gameObject.SetActive(true);
+
+                break;
+        }
 
         yield return new WaitForSeconds(5);
 

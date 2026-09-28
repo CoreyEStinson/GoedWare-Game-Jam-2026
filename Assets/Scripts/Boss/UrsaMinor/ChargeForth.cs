@@ -57,6 +57,7 @@ public class ChargeForth : BossAttack
                 Vector2.Distance(boss.transform.position, boss.PlayerPos.position) <= contactRadius)
             {
                 // Damage player 
+                boss.playerHealthComponent.TakeDamage(damage);
                 print("Attacked player with " + this);
 
                 nextHitTime = Time.time + hitCooldown;
