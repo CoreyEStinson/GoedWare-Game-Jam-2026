@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class Boss : MonoBehaviour
 {
     [SerializeField] protected float maxHealth;
+    public float MaxHealth { get { return maxHealth; } }
     [SerializeField] protected float currentHealth;
     [SerializeField] protected float moveSpeed;
     [SerializeField] protected Transform playerPos;
