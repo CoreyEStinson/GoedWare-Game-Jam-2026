@@ -61,6 +61,7 @@ public class UrsaMinor : Boss
         }
 
         // Update heathbar
+        print("Setting healthbar");
         healthBar.SetHealth((int)currentHealth);
     }
 

@@ -7,6 +7,7 @@ public abstract class Boss : MonoBehaviour
     [SerializeField] protected float maxHealth;
     public float MaxHealth { get { return maxHealth; } }
     [SerializeField] protected float currentHealth;
+    public float CurrentHealth { get { return currentHealth; } }
     [SerializeField] protected float moveSpeed;
     [SerializeField] protected Transform playerPos;
     [SerializeField] protected BossAnimationController bossAnimation;
