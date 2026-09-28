@@ -58,6 +58,11 @@ public abstract class Boss : MonoBehaviour
             Vector2 direction = playerPos.position - transform.position;
             bossAnimation.FaceDirection(direction);
         }
+
+        if (bossAnimation != null)
+        {
+            bossAnimation.SetBool("IsMoving", state == BossState.Moving);
+        }
     }
 
     

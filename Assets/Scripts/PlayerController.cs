@@ -36,6 +36,11 @@ public class PlayerController : MonoBehaviour
 
     [Header("Animation")]
     [SerializeField] private PlayerAnimationController playerAnimation;
+    
+    [Header("Slash Visual")]
+    [SerializeField] private GameObject slashPrefab;
+    [SerializeField] private float slashLifetime = 0.25f;
+    [SerializeField] private float slashRotationOffset;
 
     // Privates
     private float attackCooldownTimer;
@@ -167,6 +172,11 @@ public class PlayerController : MonoBehaviour
             if (isCharging)
             {
                 Swing(attackPoint.transform.position, attackDistance, attackRange);
+
+                Vector2 direction = 
+                ((Vector2)attackPoint.position) - (Vector2)transform.position.normalized;
+                SpawnSlash(attackPoint.position, direction);
+
                 playerAnimation.PlayAttack();
             }
         }
@@ -280,5 +290,16 @@ public class PlayerController : MonoBehaviour
 
         //TEMP
         GetComponent<SpriteRenderer>().color = Color.white;
+    }
+
+    private void SpawnSlash(Vector2 position, Vector2 direction)
+    {
+        if (slashPrefab == null || direction.magnitude < 0.001) return;
+
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion rotation = Quaternion.Euler(0f, 0f, angle + slashRotationOffset);
+
+        GameObject slash = Instantiate(slashPrefab, position, rotation);
+        Destroy(slash, slashLifetime);
     }
 }
