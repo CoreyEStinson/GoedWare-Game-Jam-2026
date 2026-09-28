@@ -34,6 +34,9 @@ public class PlayerController : MonoBehaviour
     private float dashLength;
     [SerializeField] private float dashSizeMult;
 
+    [Header("Animation")]
+    [SerializeField] private PlayerAnimationController playerAnimation;
+
     // Privates
     private float attackCooldownTimer;
     private float speed;
@@ -141,6 +144,7 @@ public class PlayerController : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         movementDirection = context.ReadValue<Vector2>();
+        playerAnimation.SetMovement(movementDirection);
     }
 
     public void Attack(InputAction.CallbackContext context)
@@ -155,6 +159,7 @@ public class PlayerController : MonoBehaviour
         {
             chargeStart = Time.time;
             isCharging = true;
+            playerAnimation.StartCharging();
         }
 
         if (context.canceled)
@@ -162,6 +167,7 @@ public class PlayerController : MonoBehaviour
             if (isCharging)
             {
                 Swing(attackPoint.transform.position, attackDistance, attackRange);
+                playerAnimation.PlayAttack();
             }
         }
     }
@@ -218,6 +224,7 @@ public class PlayerController : MonoBehaviour
             }
 
             isDodging = true;
+            playerAnimation.PlayDodge();
             speed = dodgeSpeed;
             dodgeTimer = dodgeLength;
 
@@ -239,6 +246,8 @@ public class PlayerController : MonoBehaviour
     private void DashAttack()
     {
         isDashing = true;
+        playerAnimation.PlayDash();
+
         speed = dodgeSpeed * chargeLevel;
         dodgeTimer = dashLength;
 
