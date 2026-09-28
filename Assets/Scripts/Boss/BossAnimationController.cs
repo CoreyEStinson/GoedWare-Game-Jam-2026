@@ -27,4 +27,9 @@ public class BossAnimationController : MonoBehaviour
     {
         animator.SetTrigger(triggerName);
     }
+
+    public void SetBool(string parameterName, bool value)
+    {
+        animator.SetBool(parameterName, value);
+    }
 }

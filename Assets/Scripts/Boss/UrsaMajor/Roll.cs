@@ -46,6 +46,8 @@ public class Roll : BossAttack
         rollDirection = direction;
         showHitbox = true;
 
+        boss.BossAnimation.SetBool("IsRolling", true);
+
         float distanceTravelled = 0f;
         float nextHitTime = 0f;
 
@@ -70,6 +72,8 @@ public class Roll : BossAttack
 
             yield return null;
         }
+
+        boss.BossAnimation.SetBool("IsRolling", false);
 
         showHitbox = false;
 

@@ -12,6 +12,7 @@ public abstract class Boss : MonoBehaviour
 
     public Transform PlayerPos => playerPos;
     public float MoveSpeed => moveSpeed;
+    public BossAnimationController BossAnimation => bossAnimation;
     protected BossState state;
     protected List<BossAttack> attacks = new List<BossAttack>();
     protected BossAttack activeAttack;

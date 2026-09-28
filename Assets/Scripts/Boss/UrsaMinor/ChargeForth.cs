@@ -38,6 +38,8 @@ public class ChargeForth : BossAttack
         rollDirection = direction;
         showHitbox = true;
 
+        boss.BossAnimation.SetBool("IsCharging", true);
+
         float distanceTravelled = 0f;
         float nextHitTime = 0f;
 
@@ -62,6 +64,8 @@ public class ChargeForth : BossAttack
 
             yield return null;
         }
+
+        boss.BossAnimation.SetBool("IsCharging", false);
 
         showHitbox = false;
 

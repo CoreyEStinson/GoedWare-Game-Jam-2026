@@ -22,10 +22,16 @@ public class Jump : BossAttack
     [SerializeField] private float shockwaveDamage = 15f;
     [SerializeField] private Color gizmoColor = Color.cyan;
 
+    [Header("Shockwave Visuals")]
+    [SerializeField] private LineRenderer shockwaveLinePrefab;
+    [SerializeField] private int ringSegments;
+
     private class Shockwave
     {
         public Vector2 center;
         public float radius;
+        public LineRenderer lineRenderer;
+        public Vector3[] positions;
     }
 
     private List<Shockwave> shockwaves = new List<Shockwave>();
@@ -87,8 +93,16 @@ public class Jump : BossAttack
         Shockwave wave = new Shockwave
         {
             center = center,
-            radius = 0f
+            radius = 0f,
+            lineRenderer = Instantiate(shockwaveLinePrefab),
+            positions = new Vector3[ringSegments]
         };
+
+        wave.lineRenderer.useWorldSpace = true;
+        wave.lineRenderer.loop = true;
+        wave.lineRenderer.positionCount = ringSegments;
+
+        Destroy(wave.lineRenderer.gameObject, shockwaveDuration + 0.1f);
 
         shockwaves.Add(wave);
 
@@ -102,6 +116,7 @@ public class Jump : BossAttack
 
             float progress = Mathf.Clamp01(elasped / shockwaveDuration);
             wave.radius = Mathf.Lerp(0f, shockwaveMaxRadius, progress);
+            UpdateShockwaveLine(wave, center);
 
             if (!hasHitPlayer && player != null)
             {
@@ -124,7 +139,24 @@ public class Jump : BossAttack
             yield return null;
         }
 
+        Destroy(wave.lineRenderer.gameObject);
         shockwaves.Remove(wave);
+    }
+
+    private void UpdateShockwaveLine(Shockwave wave, Vector2 center)
+    {
+        for (int i = 0; i < ringSegments; i++)
+        {
+            float angle = i * Mathf.PI * 2f / ringSegments;
+
+            wave.positions[i] = new Vector3(
+                center.x + Mathf.Cos(angle) * wave.radius,
+                center.y + Mathf.Sin(angle) * wave.radius,
+                0
+            );
+        }
+
+        wave.lineRenderer.SetPositions(wave.positions);
     }
 
     private void OnDrawGizmos()
