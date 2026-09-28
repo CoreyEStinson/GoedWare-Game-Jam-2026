@@ -53,16 +53,19 @@ public class PlayerController : MonoBehaviour
     private float dodgeTimer;
     private float dodgeCooldownTimer;
     private bool isDodging;
+    public bool IsDodging { get { return isDodging; } }
     private bool isCharging;
     private int chargeLevel;
     private float chargeStart;
     private bool isDashing;
     private List<Collider2D> alreadyHit = new List<Collider2D>();
     private bool isDead;
+    private Color originalColor;
 
     void Start()
     {
         speed = moveSpeed;
+        originalColor = GetComponent<SpriteRenderer>().color;
     }
 
     void Update()
@@ -223,6 +226,7 @@ public class PlayerController : MonoBehaviour
         }
 
         isCharging = false;
+        GetComponent<SpriteRenderer>().color = originalColor;
 
         return allHit;
     }
@@ -278,8 +282,6 @@ public class PlayerController : MonoBehaviour
 
         //Reset the attack state
         isCharging = false;
-
-        GetComponent<SpriteRenderer>().color = Color.blue;
     }
 
     private void DodgeEnd()

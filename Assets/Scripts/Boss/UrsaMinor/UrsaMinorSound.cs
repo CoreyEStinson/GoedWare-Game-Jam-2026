@@ -1,11 +1,9 @@
 using UnityEngine;
 
-public class UrsaMajorSounds : MonoBehaviour
+public class UrsaMionrSounds : MonoBehaviour
 {
     [SerializeField] private AudioClip claw;
     [SerializeField] private AudioClip die;
-    [SerializeField] private AudioClip jump;
-    [SerializeField] private AudioClip land;
     [SerializeField] private AudioClip roll;
     [SerializeField] private AudioClip walk;
 
@@ -22,8 +20,6 @@ public class UrsaMajorSounds : MonoBehaviour
 
     public void PlayClaw() => PlaySound(claw);
     public void PlayDie() => PlaySound(die);
-    public void PlayJump() => PlaySound(jump);
-    public void PlayLand() => PlaySound(land);
     public void PlayRoll() => PlaySound(roll);
     public void PlayWalk() => PlaySound(walk);
 
