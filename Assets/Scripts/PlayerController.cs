@@ -173,8 +173,8 @@ public class PlayerController : MonoBehaviour
             {
                 Swing(attackPoint.transform.position, attackDistance, attackRange);
 
-                Vector2 direction = 
-                ((Vector2)attackPoint.position) - (Vector2)transform.position.normalized;
+                Vector2 direction =
+                    ((Vector2)attackPoint.position - (Vector2)transform.position).normalized;
                 SpawnSlash(attackPoint.position, direction);
 
                 playerAnimation.PlayAttack();

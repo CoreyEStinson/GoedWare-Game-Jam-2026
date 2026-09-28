@@ -54,6 +54,7 @@ public class Flurry : BossAttack
             yield return StartCoroutine(LerpMove((Vector2)transform.position + (forward * lungeDistance), lungeTime));
 
             showHitbox = true;
+            SpawnSlash(boss, forward);
 
             Vector2 toPlayer = (Vector2)(boss.PlayerPos.position - boss.transform.position);
 

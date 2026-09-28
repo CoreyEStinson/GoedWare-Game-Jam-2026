@@ -70,12 +70,13 @@ public abstract class Boss : MonoBehaviour
     protected virtual void Die()
     {
         state = BossState.Dead;
+        bossAnimation.PlayAttack("Death");
 
         if (activeAttackCoroutine != null)
         {
             StopCoroutine(activeAttackCoroutine);
             activeAttackCoroutine = null;
-        }
+        }       
     }
 
     protected virtual void HandleIntro() { }

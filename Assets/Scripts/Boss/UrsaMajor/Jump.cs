@@ -7,6 +7,7 @@ public class Jump : BossAttack
     [Header("Jump Timing")]
     [SerializeField] private float timeBeforeShadow = 2f;
     [SerializeField] private float timeFromShadowToLanding = 2f;
+    [SerializeField] private float takeoffAnimationDuration = 0.4f;
 
     [Header("Shadow")]
     [SerializeField] private GameObject shadowPrefab;
@@ -49,10 +50,17 @@ public class Jump : BossAttack
             yield break;
 
         SpriteRenderer bossSpriteRenderer = boss.GetComponent<SpriteRenderer>();
+            float visibleTakeoffTime = Mathf.Min(
+            takeoffAnimationDuration,
+            timeBeforeShadow
+        );
+
+        yield return new WaitForSeconds(visibleTakeoffTime);
+
         if (bossSpriteRenderer != null)
             bossSpriteRenderer.enabled = false;
-        
-        yield return new WaitForSeconds(timeBeforeShadow);
+
+        yield return new WaitForSeconds(timeBeforeShadow - visibleTakeoffTime);
 
         landingPosition = boss.PlayerPos.position;
         GameObject shadow = Instantiate(shadowPrefab, landingPosition, Quaternion.identity);
@@ -62,6 +70,12 @@ public class Jump : BossAttack
         hasLandingPosition = true;
 
         boss.transform.position = landingPosition;
+
+        if (bossSpriteRenderer != null)
+            bossSpriteRenderer.enabled = true;
+
+        if (boss.BossAnimation != null)
+            boss.BossAnimation.PlayAttack("Land");
 
         // If player is inside of the slam circle
         if (boss.PlayerPos != null &&

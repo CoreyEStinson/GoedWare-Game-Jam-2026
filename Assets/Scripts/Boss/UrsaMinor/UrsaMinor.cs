@@ -62,7 +62,7 @@ public class UrsaMinor : Boss
 
         // Update heathbar
         print("Setting healthbar");
-        healthBar.SetHealth((int)currentHealth);
+        healthBar?.SetHealth((int)currentHealth);
     }
 
     private IEnumerator LerpMoveToUrsa(Vector2 endPos, float time)

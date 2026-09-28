@@ -50,6 +50,7 @@ public class FrontSwing : BossAttack
 
         swingDirection = forward;
         showHitbox = true;
+        SpawnSlash(boss, swingDirection);
 
         Vector2 toPlayer = (Vector2)(boss.PlayerPos.position - boss.transform.position);
 
