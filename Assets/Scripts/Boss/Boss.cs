@@ -9,9 +9,11 @@ public abstract class Boss : MonoBehaviour
     [SerializeField] protected float currentHealth;
     [SerializeField] protected float moveSpeed;
     [SerializeField] protected Transform playerPos;
+    [SerializeField] protected BossAnimationController bossAnimation;
 
     public Transform PlayerPos => playerPos;
     public float MoveSpeed => moveSpeed;
+    public BossAnimationController BossAnimation => bossAnimation;
     protected BossState state;
     protected List<BossAttack> attacks = new List<BossAttack>();
     protected BossAttack activeAttack;
@@ -48,6 +50,12 @@ public abstract class Boss : MonoBehaviour
 
             case BossState.Dead:
                 break;
+        }
+
+        if (playerPos != null && state != BossState.Attacking)
+        {
+            Vector2 direction = playerPos.position - transform.position;
+            bossAnimation.FaceDirection(direction);
         }
     }
 
@@ -106,6 +114,14 @@ public abstract class Boss : MonoBehaviour
         state = BossState.Attacking;
         attack.MarkUsed();
         activeAttackCoroutine = StartCoroutine(RunAttack(attack));
+
+        if (playerPos != null)
+        {
+            Vector2 direction = playerPos.position - transform.position;
+            bossAnimation.FaceDirection(direction);
+        }
+
+        bossAnimation.PlayAttack(attack.GetType().Name);
     }
 
     private IEnumerator RunAttack(BossAttack attack)
