@@ -8,12 +8,12 @@ public class BossAnimationController : MonoBehaviour
     private Vector3 previousPosition;
     private int isMoving = Animator.StringToHash("IsMoving");
 
-    private void LateUpdate()
-    {
-        Vector3 movement = transform.position - previousPosition;
-        animator.SetBool(isMoving, movement.sqrMagnitude > 0.0001f);
-        previousPosition = transform.position;
-    }
+    // private void LateUpdate()
+    // {
+    //     Vector3 movement = transform.position - previousPosition;
+    //     animator.SetBool(isMoving, movement.sqrMagnitude > 0.0001f);
+    //     previousPosition = transform.position;
+    // }
 
     public void FaceDirection(Vector2 direction)
     {
